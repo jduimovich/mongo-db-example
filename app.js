@@ -7,7 +7,7 @@ var express = require("express"),
     LocalStrategy = require("passport-local"),
     passportLocalMongoose = require("passport-local-mongoose");
 
-mongoose.connect("mongodb://mongo-service:27017/database"); 
+mongoose.connect("mongodb://mongo-service:27017/database");
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 app.use(bodyParser.json());
@@ -31,9 +31,11 @@ app.use(function (req, res, next) {
 })
 
 app.get("/", function (req, res) {
+    logEvent("home");
     res.render("home");
 })
-app.get("/main", isLoggedIn, function (req, res) {
+app.get("/main", function (req, res) {
+    logEvent("main");
     res.render("main")
 })
 app.get("/register", (req, res) => res.render("register"));
@@ -52,17 +54,66 @@ app.post("/register", (req, res) => {
     });
 });
 
+const logSchema = new mongoose.Schema({
+    event: String,
+    count: Number,
+    time: String
+});
+
+const UsageLogs = mongoose.model('UsageLogs', logSchema);
+async function saveRecord(record) {
+    await record.save();
+}
+async function logEvent(event) { 
+    console.log ("logEvent: ", event)
+    var newrecord = await UsageLogs.findOneAndUpdate(
+        { event: event },
+        {
+            $inc: { count: 1 }
+        },
+        { 
+            returnOriginal: false,
+            upsert: true 
+        },
+        function (err, doc) {
+            if (err) console.log("error on logEvent: " + err)
+        }
+    ) 
+}
+
+logEvent("Initialize")
+
+async function returnJSONAccess(res) {
+    console.log("returnJSONAccess");
+    const records = await UsageLogs.find(); 
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(records, null, 4));
+}
+
+app.get("/access", isLoggedIn, function (req, res) {
+    console.log("/access")
+    returnJSONAccess(res)
+    console.log("/access done")
+});
+app.get("/a", function (req, res) {
+    console.log("/access")
+    returnJSONAccess(res)
+    console.log("/access done")
+});
+
 // login pages 
 app.get("/login", function (req, res) {
+    logEvent("login");
     res.render("login");
 });
 // on login attempt run this
 app.post("/login", passport.authenticate("local", {
     successRedirect: "/main",
     failureRedirect: "/register"
-}), function (req, res) { 
-    }); 
+}), function (req, res) {
+});
 app.get("/logout", function (req, res) {
+    logEvent("logout");
     req.logout();
     res.redirect("/login");
 });

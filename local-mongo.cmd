@@ -1,0 +1,1 @@
+docker run -it -v./db:/data/db -p27017:27017 quay.io/jduimovich0/mongo
