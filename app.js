@@ -8,7 +8,7 @@ var express            = require("express"),
  passportLocalMongoose = require("passport-local-mongoose");
 
 //mongoose.connect("mongodb://mongo:27018/Samp_data");
- mongoose.connect("mongodb://localhost/Samp_data");
+ mongoose.connect("mongodb://localhost:27017/Samp_data");
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile); 
 
@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 //app.use(express.static('public'));
 //PASSPORT CONFIGURATION
 app.use(require("express-session")({
-    secret: "once again Rusty wins cutest dogs!",
+    secret: "AppStudio User Demo",
     resave: false,
     saveUninitialized: false
 }));
@@ -37,11 +37,11 @@ app.use(function(req, res, next){
 
 
 app.get("/" ,function(req, res) {
-        res.render("home");
-     })
-     app.get("/secret",isLoggedIn, function(req, res){
-        res.render("secret")
-    })
+    res.render("home");
+})
+app.get("/main",isLoggedIn, function(req, res){
+    res.render("main")
+})
 
 
 
@@ -70,7 +70,7 @@ app.post("/register", (req,res)=> {
  //login logic 
  //middleware logic
  app.post("/login", passport.authenticate("local",{
-        successRedirect:"/secret",
+        successRedirect:"/main",
         failureRedirect:"/register" }), 
         function(req,res){      
 
@@ -91,7 +91,7 @@ app.post("/register", (req,res)=> {
 
 
 // Local-login-port;
-app.listen(7500, function() {
-    console.log("our server has been started")
+app.listen(8080, function() {
+    console.log("Server started on 8080")
 })
    
