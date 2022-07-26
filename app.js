@@ -10,19 +10,15 @@ var express            = require("express"),
 //mongoose.connect("mongodb://mongo:27018/Samp_data");
  mongoose.connect("mongodb://localhost:27017/Samp_data");
 app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile); 
-
+app.engine('html', require('ejs').renderFile);  
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-//app.use(express.static('public'));
-//PASSPORT CONFIGURATION
 app.use(require("express-session")({
     secret: "AppStudio User Demo",
     resave: false,
     saveUninitialized: false
-}));
-
+})); 
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -34,19 +30,14 @@ app.use(function(req, res, next){
     res.locals.currentUser = req.user;
     next();
 })
-
-
+ 
 app.get("/" ,function(req, res) {
     res.render("home");
 })
 app.get("/main",isLoggedIn, function(req, res){
     res.render("main")
-})
-
-
-
+}) 
 app.get("/register", (req,res) => res.render("register")); 
-
 app.post("/register", (req,res)=> {
      req.body.username
      req.body.password
