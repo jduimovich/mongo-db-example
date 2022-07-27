@@ -37,7 +37,7 @@ app.get("/", function (req, res) {
 app.get("/main", isLoggedIn, function (req, res) {
     logEvent("main");
     res.render("main", {
-        user: res.locals.currentUser,
+        username: res.locals.currentUser.username,
         loggedIn: req.isAuthenticated()
       })
 })
