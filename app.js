@@ -34,11 +34,16 @@ app.get("/", function (req, res) {
     logEvent("home");
     res.render("home");
 })
-app.get("/main", function (req, res) {
+app.get("/main", isLoggedIn, function (req, res) {
     logEvent("main");
     res.render("main")
 })
-app.get("/register", (req, res) => res.render("register"));
+
+app.get("/register", (req, res) => {
+    logEvent("register")
+    res.render("register")
+});
+
 app.post("/register", (req, res) => {
     req.body.username
     req.body.password
@@ -64,41 +69,36 @@ const UsageLogs = mongoose.model('UsageLogs', logSchema);
 async function saveRecord(record) {
     await record.save();
 }
-async function logEvent(event) { 
-    console.log ("logEvent: ", event)
+async function logEvent(event) {
+    console.log("logEvent: ", event)
     var newrecord = await UsageLogs.findOneAndUpdate(
         { event: event },
         {
             $inc: { count: 1 }
         },
-        { 
+        {
             returnOriginal: false,
-            upsert: true 
+            upsert: true
         },
         function (err, doc) {
             if (err) console.log("error on logEvent: " + err)
         }
-    ) 
+    )
 }
-
-logEvent("Initialize")
 
 async function returnJSONAccess(res) {
     console.log("returnJSONAccess");
-    const records = await UsageLogs.find(); 
+    const records = await UsageLogs.find();
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(records, null, 4));
 }
 
 app.get("/access", isLoggedIn, function (req, res) {
-    console.log("/access")
     returnJSONAccess(res)
-    console.log("/access done")
 });
+// a no login version of listing page access
 app.get("/a", function (req, res) {
-    console.log("/access")
     returnJSONAccess(res)
-    console.log("/access done")
 });
 
 // login pages 
@@ -115,7 +115,7 @@ app.post("/login", passport.authenticate("local", {
 app.get("/logout", function (req, res) {
     logEvent("logout");
     req.logout();
-    res.redirect("/login");
+    res.redirect("/");
 });
 
 function isLoggedIn(req, res, next) {
@@ -124,7 +124,7 @@ function isLoggedIn(req, res, next) {
     }
     res.redirect("/login")
 }
- 
+
 app.listen(8080, function () {
     console.log("Server started on 8080")
 })
