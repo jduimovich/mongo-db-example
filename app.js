@@ -97,6 +97,7 @@ async function returnJSONAccess(res) {
 }
 
 app.get("/access", isLoggedIn, function (req, res) {
+    logEvent("access")
     returnJSONAccess(res)
 });
 // a no login version of listing page access
